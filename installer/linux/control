@@ -1,0 +1,11 @@
+Package: find-my-miner
+Version: 0.0.1
+Section: net
+Priority: optional
+Architecture: amd64
+Maintainer: BitsPleaseYT
+Depends: libx11-6, libice6, libsm6, libfontconfig1
+Description: Find mining rigs on your local network
+ Find My Miner scans authorized local networks for mining rigs and opens
+ their login pages in the system browser.
+

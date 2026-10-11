@@ -101,7 +101,9 @@ jobs:
           mkdir -p package/usr/share/applications
           mkdir -p package/usr/share/icons/hicolor/256x256/apps
           mkdir -p package/usr/share/doc/find-my-miner
+          mkdir -p package/DEBIAN
           cp -R publish/linux-x64/. package/opt/find-my-miner/
+          cp installer/linux/control package/DEBIAN/control
           cp installer/linux/find-my-miner package/usr/bin/find-my-miner
           cp installer/linux/find-my-miner.desktop package/usr/share/applications/find-my-miner.desktop
           cp src/IpScanner.App/Assets/logo.png package/usr/share/icons/hicolor/256x256/apps/find-my-miner.png
@@ -114,4 +116,3 @@ jobs:
           name: Find-My-Miner-${{ env.VERSION }}-Linux
           path: artifacts/*.deb
           if-no-files-found: error
-
