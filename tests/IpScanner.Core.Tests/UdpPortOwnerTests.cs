@@ -9,6 +9,8 @@ public class UdpPortOwnerTests
     [Fact]
     public void Finds_this_process_as_the_owner_of_a_bound_udp_port()
     {
+        if (!OperatingSystem.IsWindows()) return;
+
         using var socket = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
         int port = ((IPEndPoint)socket.Client.LocalEndPoint!).Port;
 
