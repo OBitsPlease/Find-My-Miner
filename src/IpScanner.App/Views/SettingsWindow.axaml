@@ -1,0 +1,75 @@
+<Window x:Class="IpScanner.App.Views.SettingsWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" Width="760" Height="720" MinWidth="620" MinHeight="520" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,10,0">
+
+                <TextBlock Text="Appearance" FontSize="16" FontWeight="SemiBold" />
+                <ComboBox x:Name="ThemeBox" Width="160" HorizontalAlignment="Left" Margin="0,8,0,0" />
+
+                <TextBlock Text="Scanning" FontSize="16" FontWeight="SemiBold" Margin="0,22,0,0" />
+                <TextBlock Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,2,0,6"
+                           Text="Lower values are gentler on your network; higher values are faster. Values are kept within safe limits." />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition /><RowDefinition /><RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Hosts probed at once" VerticalAlignment="Center" />
+                    <Slider x:Name="ConcurrencySlider" Grid.Column="1" Minimum="8" Maximum="256" TickFrequency="8" IsSnapToTickEnabled="True" Margin="0,6" />
+                    <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=ConcurrencySlider, StringFormat={}{0:N0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Row="1" Text="Connect timeout (ms)" VerticalAlignment="Center" />
+                    <Slider x:Name="ConnectSlider" Grid.Row="1" Grid.Column="1" Minimum="200" Maximum="3000" TickFrequency="100" IsSnapToTickEnabled="True" Margin="0,6" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Value, ElementName=ConnectSlider, StringFormat={}{0:N0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Row="2" Text="Web page timeout (ms)" VerticalAlignment="Center" />
+                    <Slider x:Name="HttpSlider" Grid.Row="2" Grid.Column="1" Minimum="1000" Maximum="10000" TickFrequency="500" IsSnapToTickEnabled="True" Margin="0,6" />
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Value, ElementName=HttpSlider, StringFormat={}{0:N0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                </Grid>
+
+                <TextBlock Text="Browser login" FontSize="16" FontWeight="SemiBold" Margin="0,22,0,0" />
+                <TextBlock Text="Login pages open in your system browser. Find My Miner does not store browser sessions or passwords." Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+
+                <TextBlock Text="Notifications and history" FontSize="16" FontWeight="SemiBold" Margin="0,22,0,0" />
+                <CheckBox x:Name="SoundBox" Content="Play a sound when a new likely miner appears" Margin="0,8,0,0" />
+                <Button Content="Forget all remembered devices (names, ignored flags)" HorizontalAlignment="Left" Padding="12,5" Margin="0,10,0,0" Click="OnForgetDevices" />
+
+                <TextBlock Text="Custom detection rules" FontSize="16" FontWeight="SemiBold" Margin="0,22,0,0" />
+                <TextBlock Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,2,0,8"
+                           Text="Teach the scanner about your own rigs, such as a Miner Dash page title or a hostname pattern. Pattern is a case-insensitive regular expression. Port (optional) also adds that port to scans. Weight 50+ is Likely, 80+ is Confirmed." />
+                <DataGrid x:Name="RulesGrid" AutoGenerateColumns="False" Height="190"
+                          HeadersVisibility="Column" SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="110" />
+                        <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="110" />
+                        <DataGridTextColumn Header="Match in" Binding="{Binding Source}" Width="110" />
+                        <DataGridTextColumn Header="Pattern" Binding="{Binding Pattern}" Width="*" />
+                        <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="60" />
+                        <DataGridTextColumn Header="Weight" Binding="{Binding Weight}" Width="65" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <Button Content="Add rule" Padding="12,5" Margin="0,0,8,0" Click="OnAddRule" />
+                    <Button Content="Remove selected" Padding="12,5" Click="OnRemoveRule" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="Save" Width="90" Padding="0,6" Margin="0,0,8,0" IsDefault="True" Click="OnSave" />
+            <Button Content="Cancel" Width="90" Padding="0,6" IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</Window>

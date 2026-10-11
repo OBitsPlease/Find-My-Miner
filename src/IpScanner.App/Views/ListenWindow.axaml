@@ -1,0 +1,58 @@
+<Window x:Class="IpScanner.App.Views.ListenWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Listen for miner IP report" Width="860" Height="560" MinWidth="700" MinHeight="420" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Listen for a miner's IP report" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"
+                       Text="Press Start, then press the IP / IP report button on the miner. Many miners then broadcast their address on UDP port 14235. The packet's source address is the miner's IPv4 address even if the message format is unfamiliar. This only listens; it sends nothing." />
+            <TextBlock Foreground="{DynamicResource WarnBrush}" TextWrapping="Wrap" Margin="0,6,0,0"
+                       Text="If Windows asks to allow network access, allow Private networks. A miner with no usable address on your network cannot send a report that reaches this PC; use Other networks… for a miner that fell back to a different network." />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,10">
+            <TextBlock Text="UDP port" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="PortBox" Width="100" IsEditable="True" Text="14235">
+                <ComboBoxItem Content="14235" />
+                <ComboBoxItem Content="1534" />
+            </ComboBox>
+            <Button x:Name="StartButton" Content="Start listening" Padding="16,6" Margin="12,0,0,0" Click="OnStartStop" />
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Margin="14,0,0,0" Foreground="{DynamicResource SubtleTextBrush}" />
+        </StackPanel>
+
+        <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="8">
+            <Grid>
+                <DataGrid x:Name="ReportGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                          HeadersVisibility="Column" BorderThickness="0" Background="Transparent">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="80" />
+                        <DataGridTextColumn Header="From (miner IP)" Binding="{Binding From}" Width="130" />
+                        <DataGridTextColumn Header="Reported IP" Binding="{Binding ReportedIp}" Width="120" />
+                        <DataGridTextColumn Header="MAC" Binding="{Binding Mac}" Width="140" />
+                        <DataGridTextColumn Header="Message" Binding="{Binding Text}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBlock x:Name="EmptyText" Text="Nothing received yet." Foreground="{DynamicResource SubtleTextBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
+            </Grid>
+        </Border>
+
+        <DockPanel Grid.Row="3" Margin="0,14,0,0" LastChildFill="False">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button x:Name="OpenButton" Content="Open login" Padding="14,6" Margin="0,0,8,0" IsEnabled="False" Click="OnOpenLogin" />
+                <Button x:Name="BrowserButton" Content="Default browser" Padding="14,6" Margin="0,0,8,0" IsEnabled="False" Click="OnOpenBrowser" />
+                <Button x:Name="CopyButton" Content="Copy IP" Padding="14,6" Margin="0,0,8,0" IsEnabled="False" Click="OnCopyIp" />
+                <Button Content="Scan network now" Padding="14,6" Click="OnScanNow" />
+            </StackPanel>
+            <Button DockPanel.Dock="Right" Content="Close" Padding="18,6" IsCancel="True" />
+        </DockPanel>
+    </Grid>
+</Window>

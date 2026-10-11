@@ -1,0 +1,22 @@
+<Window x:Class="IpScanner.App.Views.EditDeviceWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Name &amp; type" Width="460" SizeToContent="Height" CanResize="False" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <StackPanel Margin="20">
+        <TextBlock x:Name="HeaderText" FontSize="16" FontWeight="SemiBold" />
+        <TextBlock Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,4,0,14"
+                   Text="Your name and type are remembered for this device (by its MAC address), even if its IP address changes." />
+
+        <TextBlock Text="Name" Foreground="{DynamicResource SubtleTextBrush}" FontSize="11" />
+        <TextBox x:Name="NameBox" Margin="0,3,0,14" MaxLength="60" />
+
+        <TextBlock Text="Type" Foreground="{DynamicResource SubtleTextBrush}" FontSize="11" />
+        <ComboBox x:Name="TypeBox" IsEditable="True" Margin="0,3,0,4" />
+        <TextBlock x:Name="DetectedText" Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Save" Width="90" Padding="0,6" Margin="0,0,8,0" IsDefault="True" Click="OnSave" />
+            <Button Content="Cancel" Width="90" Padding="0,6" IsCancel="True" />
+        </StackPanel>
+    </StackPanel>
+</Window>

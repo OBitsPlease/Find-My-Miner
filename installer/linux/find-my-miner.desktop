@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Find My Miner
+Comment=Find mining rigs on your local network
+Exec=find-my-miner
+Icon=find-my-miner
+Terminal=false
+Type=Application
+Categories=Network;Utility;
+

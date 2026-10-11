@@ -1,0 +1,117 @@
+name: Build installers
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  VERSION: 0.0.1
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test tests/IpScanner.Core.Tests/IpScanner.Core.Tests.csproj --configuration Release
+
+  windows:
+    name: Windows installer
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish
+        run: dotnet publish src/IpScanner.App/IpScanner.App.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64
+      - name: Build installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "installer\windows\FindMyMiner.iss"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Find-My-Miner-${{ env.VERSION }}-Windows
+          path: artifacts/*.exe
+          if-no-files-found: error
+
+  macos:
+    name: macOS installer
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish
+        run: dotnet publish src/IpScanner.App/IpScanner.App.csproj -c Release -r osx-arm64 --self-contained true -o publish/osx-arm64
+      - name: Build application bundle
+        run: |
+          mkdir -p "artifacts/Find My Miner.app/Contents/MacOS"
+          cp -R publish/osx-arm64/. "artifacts/Find My Miner.app/Contents/MacOS/"
+          cp installer/macos/Info.plist "artifacts/Find My Miner.app/Contents/Info.plist"
+          chmod +x "artifacts/Find My Miner.app/Contents/MacOS/FindMyMiner"
+      - name: Build DMG installer
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "Find My Miner" \
+            --background "installer/installer-splash.png" \
+            --window-size 900 560 \
+            --icon-size 128 \
+            --icon "Find My Miner.app" 220 280 \
+            --app-drop-link 680 280 \
+            "artifacts/Find-My-Miner-${VERSION}-macOS-arm64.dmg" \
+            "artifacts/Find My Miner.app"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Find-My-Miner-${{ env.VERSION }}-macOS
+          path: artifacts/*.dmg
+          if-no-files-found: error
+
+  linux:
+    name: Linux installer
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish
+        run: dotnet publish src/IpScanner.App/IpScanner.App.csproj -c Release -r linux-x64 --self-contained true -o publish/linux-x64
+      - name: Build DEB installer
+        run: |
+          mkdir -p package/opt/find-my-miner
+          mkdir -p package/usr/bin
+          mkdir -p package/usr/share/applications
+          mkdir -p package/usr/share/icons/hicolor/256x256/apps
+          mkdir -p package/usr/share/doc/find-my-miner
+          cp -R publish/linux-x64/. package/opt/find-my-miner/
+          cp installer/linux/find-my-miner package/usr/bin/find-my-miner
+          cp installer/linux/find-my-miner.desktop package/usr/share/applications/find-my-miner.desktop
+          cp src/IpScanner.App/Assets/logo.png package/usr/share/icons/hicolor/256x256/apps/find-my-miner.png
+          cp installer/installer-splash.png package/usr/share/doc/find-my-miner/installer-artwork.png
+          chmod +x package/usr/bin/find-my-miner package/opt/find-my-miner/FindMyMiner
+          mkdir -p artifacts
+          dpkg-deb --build --root-owner-group package "artifacts/find-my-miner_${VERSION}_amd64.deb"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Find-My-Miner-${{ env.VERSION }}-Linux
+          path: artifacts/*.deb
+          if-no-files-found: error
+

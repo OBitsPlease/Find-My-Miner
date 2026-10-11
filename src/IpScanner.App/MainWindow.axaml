@@ -1,0 +1,240 @@
+<Window x:Class="IpScanner.App.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Find My Miner — Mining Rig Finder"
+        Width="1440" Height="800" MinWidth="1000" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="Theme" Command="{Binding ToggleThemeCommand}" Margin="0,0,8,0" Padding="12,5" />
+                <Button Content="Settings" Command="{Binding OpenSettingsCommand}" Padding="12,5" />
+            </StackPanel>
+            <Image Source="Assets/logo.png" Width="46" Height="46" DockPanel.Dock="Left" Margin="0,0,12,0" />
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Find My Miner" FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="Find mining rigs on your local network and open their login pages" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Network + scan controls -->
+        <Border Grid.Row="1" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="NETWORK ADAPTER" Margin="0,0,0,3" />
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}" Width="520" IsEnabled="{Binding IsIdle}" />
+                        <Button Content="Refresh" Command="{Binding RefreshAdaptersCommand}" Margin="8,0,0,0" Padding="12,5" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding NetworkText}" Margin="0,6,0,0" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{Binding CancelCommand}" Padding="18,8" Margin="0,0,8,0" />
+                        <Button Content="Scan network" Command="{Binding ScanCommand}" Padding="22,8" FontWeight="SemiBold" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="Listen for IP report" Command="{Binding OpenIpReportCommand}" Padding="12,5" Margin="0,0,8,0" />
+                        <Button Content="Other networks…" Command="{Binding OpenOffSubnetCommand}" Padding="12,5" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Progress -->
+        <Grid Grid.Row="2" Margin="2,0,2,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <ProgressBar Height="5" Minimum="0" Maximum="{Binding ProgressMax}" Value="{Binding ProgressValue}" />
+                <TextBlock Text="{Binding SummaryText}" Margin="0,4,0,0" />
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding ElapsedText}" VerticalAlignment="Bottom" Margin="12,0,0,0" />
+        </Grid>
+
+        <!-- Filters -->
+        <DockPanel Grid.Row="3" Margin="0,0,0,8" LastChildFill="False">
+            <TextBlock Text="Search" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="240" />
+            <ComboBox ItemsSource="{Binding PlatformFilters}" SelectedItem="{Binding SelectedPlatformFilter}" Width="170" Margin="10,0,0,0" />
+            <CheckBox Content="Miners only" IsChecked="{Binding MinersOnly}" Margin="14,0,0,0" VerticalAlignment="Center" />
+            <CheckBox Content="Show ignored" IsChecked="{Binding ShowIgnored}" Margin="14,0,0,0" VerticalAlignment="Center" />
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="Rescan uncertain / offline" Command="{Binding RescanUncertainCommand}" Padding="12,5" Margin="0,0,8,0" />
+                <Button Content="Copy miner URLs" Command="{Binding CopyAllUrlsCommand}" Padding="12,5" Margin="0,0,8,0" />
+                <Button Content="Export…" Command="{Binding ExportCommand}" Padding="12,5" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Results + details -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="330" />
+            </Grid.ColumnDefinitions>
+
+            <Border Padding="0">
+                <Grid>
+                    <DataGrid x:Name="ResultsGrid"
+                              ItemsSource="{Binding View}" SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="40"
+                              BorderThickness="0" Background="Transparent" 
+                              DoubleTapped="OnGridDoubleClick"
+                              PointerPressed="OnGridRightClick" KeyDown="OnGridKeyDown">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Name &amp; type…  (F2)" Click="OnMenuEdit" />
+                                <Separator />
+                                <MenuItem Header="Open login" Click="OnMenuOpen" />
+                                <MenuItem Header="Open in default browser" Click="OnMenuBrowser" />
+                                <MenuItem Header="Copy IP" Click="OnMenuCopyIp" />
+                                <Separator />
+                                <MenuItem Header="Rescan this device" Click="OnMenuRescan" />
+                                <MenuItem Header="Ignore / restore" Click="OnMenuIgnore" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Status" Width="105" SortMemberPath="StatusText">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                                            <Ellipse Width="9" Height="9" Fill="{Binding StatusBrush}" Margin="0,0,7,0" />
+                                            <TextBlock Text="{Binding StatusText}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="IP address" Binding="{Binding Ip}" SortMemberPath="IpSort" Width="115" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding DisplayName}" Width="140" />
+                            <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="125" />
+                            <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="85" />
+                            <DataGridTemplateColumn Header="Confidence" Width="125" SortMemberPath="ConfidenceSort">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ConfidenceText}" Foreground="{Binding ConfidenceBrush}"
+                                                   FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="MAC" Binding="{Binding MacText}" Width="140" />
+                            <DataGridTextColumn Header="Open ports" Binding="{Binding PortsText}" Width="*" MinWidth="100" />
+                            <DataGridTemplateColumn Header="Login" Width="170" CanUserSort="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0">
+                                            <Button Content="Open" IsEnabled="{Binding HasUrl}"
+                                                    Command="{Binding DataContext.OpenEmbeddedCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}" />
+                                            <Button Content="Browser" IsEnabled="{Binding HasUrl}"
+                                                    Command="{Binding DataContext.OpenBrowserCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"
+                                IsVisible="{Binding NoDevices}">
+                        <TextBlock Text="No devices yet" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                        <TextBlock Text="Press “Scan network” to look for mining rigs on your LAN." Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Details -->
+            <Border Grid.Column="2">
+                <Grid>
+                    <TextBlock Text="Select a device to see why it was identified." TextWrapping="Wrap"
+                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
+                               IsVisible="{Binding NoSelection}" />
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" DataContext="{Binding SelectedDevice}"
+                                  IsVisible="{Binding DataContext.HasSelection, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <StackPanel Margin="0,0,6,0">
+                            <TextBlock Text="{Binding HeadlineText}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding ConfidenceText}" Foreground="{Binding ConfidenceBrush}" FontWeight="SemiBold" Margin="0,2,0,0" />
+                            <TextBlock Text="{Binding IpChangeNote}" Foreground="{DynamicResource WarnBrush}" Margin="0,6,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Ipv6Note}" Foreground="{DynamicResource WarnBrush}" Margin="0,6,0,0" TextWrapping="Wrap" />
+
+                            <TextBlock Text="NAME" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding FriendlyName, UpdateSourceTrigger=LostFocus}" />
+                                <Button Grid.Column="1" Content="Name &amp; type…" Margin="6,0,0,0" Padding="10,4"
+                                        Command="{Binding DataContext.EditDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                            </Grid>
+
+                            <TextBlock Text="ADDRESS" />
+                            <TextBlock Text="{Binding Ip}" FontFamily="Consolas" />
+                            <TextBlock Text="{Binding Hostname}" />
+                            <TextBlock Text="{Binding MacText}" FontFamily="Consolas" />
+                            <TextBlock Text="{Binding LatencyText, StringFormat='Response: {0}'}" />
+
+                            <TextBlock Text="LOGIN URL" />
+                            <TextBlock Text="{Binding Url, TargetNullValue='No web interface found'}" TextWrapping="Wrap" FontFamily="Consolas" />
+                            <TextBlock Text="{Binding CertificateWarning}" Foreground="{DynamicResource WarnBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+
+                            <TextBlock Text="WHY THIS RESULT" />
+                            <ItemsControl ItemsSource="{Binding Reasons}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" Margin="0,1" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="OPEN PORTS" />
+                            <TextBlock Text="{Binding PortsText}" TextWrapping="Wrap" />
+
+                            <TextBlock Text="SEEN" />
+                            <TextBlock Text="{Binding LastSeenText, StringFormat='Last: {0}'}" />
+                            <TextBlock Text="{Binding FirstSeenText, StringFormat='First: {0}'}" />
+
+                            <WrapPanel Margin="0,16,0,0">
+                                <Button Content="Open login" Margin="0,0,6,6" Padding="12,5" IsEnabled="{Binding HasUrl}"
+                                        Command="{Binding DataContext.OpenEmbeddedCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <Button Content="Default browser" Margin="0,0,6,6" Padding="12,5" IsEnabled="{Binding HasUrl}"
+                                        Command="{Binding DataContext.OpenBrowserCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <Button Content="Copy IP" Margin="0,0,6,6" Padding="12,5"
+                                        Command="{Binding DataContext.CopyIpCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <Button Content="Copy URL" Margin="0,0,6,6" Padding="12,5" IsEnabled="{Binding HasUrl}"
+                                        Command="{Binding DataContext.CopyUrlCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <Button Content="Rescan" Margin="0,0,6,6" Padding="12,5"
+                                        Command="{Binding DataContext.RescanCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <Button Content="Ignore / restore" Margin="0,0,6,6" Padding="12,5"
+                                        Command="{Binding DataContext.ToggleIgnoreCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                            </WrapPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Status bar -->
+        <TextBlock Grid.Row="5" Text="{Binding StatusText}" Margin="2,10,2,0" TextTrimming="CharacterEllipsis" />
+    </Grid>
+</Window>

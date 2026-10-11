@@ -1,0 +1,16 @@
+<Window x:Class="IpScanner.App.Views.LoginWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Miner login" Width="600" Height="220" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="24" Spacing="12">
+    <TextBlock Text="Login opened in your default browser" FontSize="18" FontWeight="SemiBold"/>
+    <TextBlock x:Name="AddressText" TextWrapping="Wrap"/>
+    <TextBlock Text="Find My Miner does not embed a browser or store passwords, cookies, or page content. Your normal browser and password manager handle the login." TextWrapping="Wrap"
+               Foreground="{DynamicResource SubtleTextBrush}"/>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="Open again" Click="OnOpenExternal"/>
+      <Button Content="Close" Click="OnClose"/>
+    </StackPanel>
+  </StackPanel>
+</Window>

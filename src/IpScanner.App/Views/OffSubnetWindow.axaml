@@ -1,0 +1,60 @@
+<Window x:Class="IpScanner.App.Views.OffSubnetWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Find devices on another network" Width="900" Height="680" MinWidth="760" MinHeight="520" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Find devices on another network" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"
+                       Text="A miner that cannot get an address from your router can fall back to a different network (for example 192.168.50.x). It is on the same cable, but a normal scan cannot reach it. This listens to the network's broadcast traffic for 60 seconds (miners can take a minute to boot) and shows any such device, plus any device still asking for an address. It sends nothing and needs administrator permission only for the capture." />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,10">
+            <TextBlock Text="Adapter" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="AdapterBox" Width="360" />
+            <Button x:Name="StartButton" Content="Start 60-second capture" Padding="16,6" Margin="12,0,0,0" Click="OnStart" />
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Margin="14,0,0,0" Foreground="{DynamicResource SubtleTextBrush}" />
+        </StackPanel>
+
+        <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="8">
+            <Grid>
+                <DataGrid x:Name="DeviceGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                          HeadersVisibility="Column" BorderThickness="0" Background="Transparent">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="IP it is using" Binding="{Binding AddressText}" Width="130" />
+                        <DataGridTextColumn Header="MAC" Binding="{Binding Mac}" Width="140" />
+                        <DataGridTextColumn Header="Seen as" Binding="{Binding Evidence}" Width="190" />
+                        <DataGridTextColumn Header="Looks like" Binding="{Binding Hint}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBlock x:Name="EmptyText" Text="No capture yet." Foreground="{DynamicResource SubtleTextBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="3" Margin="0,14,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="ReachButton" Content="Reach this device" Padding="14,6" Margin="0,0,8,0" IsEnabled="False" Click="OnReach" />
+                <Button x:Name="CopyButton" Content="Copy IP" Padding="14,6" IsEnabled="False" Click="OnCopy" />
+            </StackPanel>
+            <TextBlock Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap" Margin="0,6,0,0"
+                       Text="Reach this device adds a temporary address (such as 192.168.50.10) to the chosen adapter so this PC can talk to it directly, then scans that network. Once the miner has an address on your normal network, remove the temporary one below." />
+            <Border Margin="0,12,0,0" Padding="12" CornerRadius="8" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" x:Name="RemoveButton" Content="Remove temporary addresses" Padding="12,6" Click="OnRemove" VerticalAlignment="Center" />
+                    <TextBlock x:Name="TempText" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" />
+                </DockPanel>
+            </Border>
+        </StackPanel>
+
+        <Button Grid.Row="4" Content="Close" Padding="18,6" HorizontalAlignment="Right" Margin="0,14,0,0" IsCancel="True" />
+    </Grid>
+</Window>
